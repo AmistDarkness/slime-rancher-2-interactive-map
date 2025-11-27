@@ -33,6 +33,68 @@
   align-items: center;
 }
 
+.gigi-convo {
+  @apply drop-shadow-lg border-8 border-[#691640] bg-slate-300
+    flex flex-col justify-between
+    min-w-1/3 min-h-1/2 h-min pointer-events-auto;
+
+  width: 95%;
+  height: 90%;
+  @screen sm {
+    width: 80%;
+    height: 80%;
+  }
+
+  --gigi-portrait-max-h: 20vh;
+  --gigi-portrait-max-w: 15%;
+}
+
+.gigi-text-entry {
+  @apply p-4 px-5 m-1 rounded-xl bg-white text-slate-950 font-medium text-xl drop-shadow-md relative z-20;
+}
+
+@screen sm {
+  /* if sm breakpoint, screen is big enough to show gigi portrait */
+  body.hasHover .gigi-convo {
+    /* show gigi portrait of hovered text entry, or the last text entry if none are hovered */
+    /* note: uses selector list argument "of" in :nth-last-child, which is relatively newly-available Baseline 2023 (see https://caniuse.com/css-nth-child-of) */
+    & .gigi-text-entry:hover .gigi-portrait,
+    &:not(:has(.gigi-text-entry:hover)) .gigi-text-entry:nth-last-child(1 of .gigi-text-entry) .gigi-portrait
+    {
+      @apply opacity-90;
+    }
+  }
+}
+
+.gigi-convo-top-spacer {
+  @apply min-h-[--gigi-portrait-max-h];
+}
+
+.gigi-portrait {
+  @apply pointer-events-none;
+  transition: all 0.5s;
+  @apply opacity-0;
+  @apply absolute bottom-full -left-4 max-w-[--gigi-portrait-max-w] max-h-[--gigi-portrait-max-h] aspect-auto;
+}
+
+.gigi-option-group-entry {
+  @apply self-end w-[calc(100%-0.8*var(--gigi-portrait-max-w,_0))];
+}
+
+.gigi-option-button {
+  @apply p-2 px-7 m-1 rounded-full border-[6px] border-white bg-white text-slate-950 font-medium text-xl w-auto drop-shadow-md;
+  
+  &:hover,
+  &:focus,
+  &.selected
+  {
+    @apply !border-green-500;
+  }
+  &.selected {
+    @apply bg-green-900 border-green-900 text-white;
+  }
+}
+
 .leaflet-popup-content-wrapper {
   @apply bg-sidebar border-solid border-[1px];
 
@@ -84,17 +146,45 @@ hr {
 }
 
 .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 120px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-  }
-  
-  .tooltip:hover .tooltiptext {
-    visibility: visible;
-  }
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+/* div.leaflet-container * :has(.abcdefg),
+.abcdefg {
+  visibility: visible !important;
+  overflow: visible !important;
+  height: 200px !important;
+  width: 200px !important;
+  transform: translate(0,0) !important;
+  background: white !important;
+  color: gray !important;
+  filter: none !important;
+  z-index: 199997 !important;
+}
+.abcdefg {
+  z-index: 199998 !important;
+}
+.abcdefg * {
+  visibility: visible !important;
+  overflow: visible !important;
+  height: 40px !important;
+  width: 40px !important;
+  transform: translate(0,0) !important;
+  background: goldenrod !important;
+  color: gray !important;
+  filter: none !important;
+  border: 1px solid red !important;
+  z-index: 199999 !important;
+} */

@@ -1,10 +1,14 @@
 import {
+    gigi_hologram_ls_key,
     gordo_ls_key,
     locked_door_ls_key,
     map_node_ls_key,
+    nullifier_door_ls_key,
+    projector_puzzle_ls_key,
     research_drone_ls_key,
     shadow_door_ls_key,
     stabilizing_gate_ls_key,
+    teleport_pad_ls_key,
     treasure_pod_ls_key
 } from "../globals";
 import { useContext, useEffect } from "react";
@@ -21,6 +25,10 @@ export function ExportUserDataButton() {
     const research_drones = localStorage.getItem(research_drone_ls_key) ?? "[]";
     const stabilizing_gates = localStorage.getItem(stabilizing_gate_ls_key) ?? "[]";
     const shadow_doors = localStorage.getItem(shadow_door_ls_key) ?? "[]";
+    const gigi_holograms = localStorage.getItem(gigi_hologram_ls_key) ?? "[]";
+    const projector_puzzles = localStorage.getItem(projector_puzzle_ls_key) ?? "[]";
+    const teleport_pads = localStorage.getItem(teleport_pad_ls_key) ?? "[]";
+    const nullifier_doors = localStorage.getItem(nullifier_door_ls_key) ?? "[]";
 
     let found_data: UserData = {
         found_gordos: JSON.parse(gordos),
@@ -30,6 +38,10 @@ export function ExportUserDataButton() {
         found_research_drones: JSON.parse(research_drones),
         found_stabilizing_gates: JSON.parse(stabilizing_gates),
         found_shadow_doors: JSON.parse(shadow_doors),
+        found_gigi_holograms: JSON.parse(gigi_holograms),
+        found_projector_puzzles: JSON.parse(projector_puzzles),
+        found_teleport_pads: JSON.parse(teleport_pads),
+        found_nullifier_doors: JSON.parse(nullifier_doors),
     };
 
     useEffect(() => {
@@ -40,6 +52,10 @@ export function ExportUserDataButton() {
         const research_drones = localStorage.getItem(research_drone_ls_key) ?? "[]";
         const stabilizing_gates = localStorage.getItem(stabilizing_gate_ls_key) ?? "[]";
         const shadow_doors = localStorage.getItem(shadow_door_ls_key) ?? "[]";
+        const gigi_holograms = localStorage.getItem(gigi_hologram_ls_key) ?? "[]";
+        const projector_puzzles = localStorage.getItem(projector_puzzle_ls_key) ?? "[]";
+        const teleport_pads = localStorage.getItem(teleport_pad_ls_key) ?? "[]";
+        const nullifier_doors = localStorage.getItem(nullifier_door_ls_key) ?? "[]";
 
         found_data = {
             found_gordos: JSON.parse(gordos),
@@ -49,7 +65,11 @@ export function ExportUserDataButton() {
             found_research_drones: JSON.parse(research_drones),
             found_stabilizing_gates: JSON.parse(stabilizing_gates),
             found_shadow_doors: JSON.parse(shadow_doors),
-        } as UserData;
+            found_gigi_holograms: JSON.parse(gigi_holograms),
+            found_projector_puzzles: JSON.parse(projector_puzzles),
+            found_teleport_pads: JSON.parse(teleport_pads),
+            found_nullifier_doors: JSON.parse(nullifier_doors),
+        };
     }, [found]);
 
     const found_json_file = new Blob([JSON.stringify(found_data)], { type: "application/json" });
@@ -103,6 +123,10 @@ export function ImportUserDataButton() {
                                         case treasure_pod_ls_key:
                                         case stabilizing_gate_ls_key:
                                         case shadow_door_ls_key:
+                                        case gigi_hologram_ls_key:
+                                        case projector_puzzle_ls_key:
+                                        case teleport_pad_ls_key:
+                                        case nullifier_door_ls_key:
                                             break;
                                         default:
                                             console.error(`error: invalid key '${key}' for found items.`);
@@ -137,6 +161,18 @@ export function ImportUserDataButton() {
                                             break;
                                         case shadow_door_ls_key:
                                             temp_found.shadow_doors = data;
+                                            break;
+                                        case gigi_hologram_ls_key:
+                                            temp_found.gigi_holograms = data;
+                                            break;
+                                        case projector_puzzle_ls_key:
+                                            temp_found.projector_puzzles = data;
+                                            break;
+                                        case teleport_pad_ls_key:
+                                            temp_found.teleport_pads = data;
+                                            break;
+                                        case nullifier_door_ls_key:
+                                            temp_found.nullifier_doors = data;
                                             break;
                                     }
 

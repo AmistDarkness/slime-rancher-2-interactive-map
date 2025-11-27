@@ -1,10 +1,10 @@
-import { Marker, Popup } from "react-leaflet";
 import { icon_opacity, icon_template, map_node_ls_key } from "../globals";
 import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { MapNode } from "../types";
 import { MapType } from "../CurrentMapContext";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { handleChecked } from "../util";
 import { map_nodes } from "../data/map_nodes";
 
@@ -33,37 +33,30 @@ export function MapNodeIcon({ map_node, keyName }: { map_node: MapNode, keyName:
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/iconMapNode.png",
         className: `${checked && icon_opacity}`
-    });
+    };
+
+    const markerRefKey = `mapnode_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
     return (
-        <Marker key={keyName} position={[map_node.pos.x, map_node.pos.y]} icon={icon}>
-            <Popup>
-                <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center gap-5">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleChecked(map_node_ls_key, keyName, checked, setChecked, deprecatedKey)}
-                                className="w-4 h-4"
-                            />
-                            <h1 className="ml-2 text-xl font-medium">{map_node.name}</h1>
-                        </div>
-                    </div>
-
-                    <hr />
-
-                    <div>
-                        <span className="text-md font-bold">Description: </span>
-                        <span>{map_node.description}</span>
-                    </div>
-                </div>
-            </Popup>
-        </Marker>
+        <MarkerAndPopupTemplate
+            markerRefKey={markerRefKey}
+            position={[map_node.pos.x, map_node.pos.y]}
+            iconOptions={iconOptions}
+            popupCheckedState={checked}
+            onPopupCheckChange={() => handleChecked(map_node_ls_key, keyName, checked, setChecked, deprecatedKey)}
+            headerRowChildren={
+                <h1 className="ml-2 text-xl font-medium">{map_node.name}</h1>
+            }
+        >
+            <div>
+                <span className="text-md font-bold">Description: </span>
+                <span>{map_node.description}</span>
+            </div>
+        </MarkerAndPopupTemplate>
     );
 }
 

@@ -1,13 +1,16 @@
-import { Marker, Popup } from "react-leaflet";
 import React, { useContext, useEffect, useState } from "react";
+import { ResearchDrone, TranslatedDronePage } from "../types";
 import { icon_opacity, icon_template, research_drone_ls_key } from "../globals";
 import { AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { MapType } from "../CurrentMapContext";
-import { ResearchDrone } from "../types";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { handleChecked } from "../util";
 import { research_drones } from "../data/research_drones";
+
+// TODO: refactor the language to a configuration or settings area?
+const curLanguage = "en";
 
 export function ResearchDroneIcon({
     research_drone,
@@ -44,45 +47,40 @@ export function ResearchDroneIcon({
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/researchDroneFaceIcon.png",
         className: `${checked && icon_opacity}`
-    });
+    };
+
+    const markerRefKey = `researchdrone_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
     return (
-        <Marker key={keyName} position={[research_drone.pos.x, research_drone.pos.y]} icon={icon}>
-            <Popup>
-                <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center gap-5">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleChecked(research_drone_ls_key, keyName, checked, setChecked, deprecatedKey)}
-                                className="w-4 h-4"
-                            />
-                            <h1 className="ml-2 text-xl font-medium">{research_drone.name}</h1>
-                        </div>
-                    </div>
-                    <hr />
-                    <div>
-                        <span className="text-md font-bold">Description: </span>
-                        <span>{research_drone.description}</span>
-                    </div>
+        <MarkerAndPopupTemplate
+            markerRefKey={markerRefKey}
+            position={[research_drone.pos.x, research_drone.pos.y]}
+            iconOptions={iconOptions}
+            popupCheckedState={checked}
+            onPopupCheckChange={() => handleChecked(research_drone_ls_key, keyName, checked, setChecked, deprecatedKey)}
+            headerRowChildren={
+                <h1 className="ml-2 text-xl font-medium">{research_drone.name}</h1>
+            }
+        >
+            <div>
+                <span className="text-md font-bold">Description: </span>
+                <span>{research_drone.description}</span>
+            </div>
 
-                    <button
-                        className="border w-[5rem] mt-2 self-end"
-                        onClick={() => {
-                            setShowLog(true);
-                            setCurrentLog(<Log research_drone={research_drone} setShowLog={setShowLog} />);
-                        }}
-                    >
-                        Access Log
-                    </button>
-                </div>
-            </Popup>
-        </Marker>
+            <button
+                className="border w-[5rem] mt-2 p-1 self-end"
+                onClick={() => {
+                    setShowLog(true);
+                    setCurrentLog(<Log research_drone={research_drone} setShowLog={setShowLog} />);
+                }}
+            >
+                Access Log
+            </button>
+        </MarkerAndPopupTemplate>
     );
 }
 
@@ -94,13 +92,17 @@ export function Log({
     setShowLog: React.Dispatch<React.SetStateAction<boolean>>,
 }) {
     const [showArchived, setShowArchived] = useState(false);
-    const textArray = !showArchived ? research_drone.log : research_drone.archive;
+    const translatedPages = !showArchived ? research_drone.log : research_drone.archive;
+
+    let accessingText = translatedPages[0]?.[curLanguage]?.[0];
+    if(!accessingText)
+        accessingText = `Accessing GG${!showArchived ? "Log" : "Archive"}:`;
 
     return (
         <div className={`${!showArchived ? "border-[#0ba0fb] text-white" : "border-[#58faa4] text-[#58faa4]"} max-w-fit log`}>
             <div className="flex flex-col mb-7">
                 <div className="flex justify-between items-center mb-7">
-                    <span className="font-medium text-2xl">Accessing GG.{!showArchived ? "Log" : "Archive"}:</span>
+                    <span className="font-medium text-2xl">{accessingText}</span>
                     <AiOutlineClose
                         onClick={() => setShowLog(false)}
                         size={25}
@@ -108,7 +110,11 @@ export function Log({
                     />
                 </div>
                 <div className="flex flex-col gap-2">
-                    {textArray.map((text: string) => <p key={text} className="text-lg monospace-font">{text}</p>)}
+                    {translatedPages.flatMap((page: TranslatedDronePage, pageInd: number) => (
+                        page[curLanguage].map((text: string, lineInd: number) => (
+                            pageInd === 0 && lineInd === 0 ? null : <p key={text} className="text-lg monospace-font">{text}</p>
+                        )).filter(e => e !== null)
+                    ))}
                 </div>
             </div>
             <div className="flex justify-end">

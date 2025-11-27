@@ -1,113 +1,113 @@
 import { PlannerPosition, Vec2 } from "../types";
 
-// Top to bottom, left to right.
+// Reading order - left to right, top to bottom.
 export const planner_positions: { [key: string]: { [key: string]: PlannerPosition } } = {
-    conservatory: {
-        1: {
-            position: { x: 37.45, y: -11.54 } as Vec2,
-        },
-        2: {
-            position: { x: 37.45, y: -10.01 } as Vec2,
-        },
-        3: {
-            position: { x: 33.85, y: -10.06 } as Vec2,
-        },
-        4: {
-            position: { x: 32.61, y: -11.57 } as Vec2,
-        },
-        5: {
-            position: { x: 32.61, y: -10.06 } as Vec2,
-        },
-        6: {
-            position: { x: 32.61, y: -8.55 } as Vec2,
-        },
-        7: {
-            position: { x: 33.85, y: -5.59 } as Vec2,
-        },
-        8: {
-            position: { x: 32.61, y: -5.59 } as Vec2,
-        },
-    },
-    gully: {
-        1: {
-            position: { x: 48.85, y: -4.01 } as Vec2,
-        },
-        2: {
-            position: { x: 47.46, y: -7.39 } as Vec2,
-        },
-        3: {
-            position: { x: 47.46, y: -5.07 } as Vec2,
-        },
-        4: {
-            position: { x: 47.21, y: -1.83 } as Vec2,
-        },
-        5: {
-            position: { x: 44.7, y: -3.93 } as Vec2,
-        },
-    },
-    tidepools: {
-        1: {
-            position: { x: 49.68, y: 6.75 } as Vec2,
-        },
-        2: {
-            position: { x: 49.48, y: 9.96 } as Vec2,
-        },
-        3: {
-            position: { x: 47.35, y: 8.65 } as Vec2,
-        },
-        4: {
-            position: { x: 47.35, y: 10.46 } as Vec2,
-        },
-        5: {
-            position: { x: 45.69, y: 10.0 } as Vec2,
-        },
-    },
     archway: {
-        1: {
-            position: { x: 35.9, y: 10.12 } as Vec2,
+        "0": {
+            position: { x: -336.5, y: 740.5 }
         },
-        2: {
-            position: { x: 35.21, y: 12.08 } as Vec2,
+        "1": {
+            position: { x: -326.5, y: 762.5 }
         },
-        3: {
-            position: { x: 34.13, y: 13.79 } as Vec2,
+        "2": {
+            position: { x: -311.5, y: 782.5 }
         },
-        4: {
-            position: { x: 32.66, y: 13.35 } as Vec2,
+        "3": {
+            position: { x: -300.5, y: 726.5 }
         },
-        5: {
-            position: { x: 33.31, y: 8.87 } as Vec2,
+        "4": {
+            position: { x: -291.5, y: 777.7 }
+        }
+    },
+    conservatory: {
+        "0": {
+            position: { x: -358.5, y: 494 }
         },
+        "1": {
+            position: { x: -358.5, y: 511 }
+        },
+        "2": {
+            position: { x: -308, y: 511 }
+        },
+        "3": {
+            position: { x: -308, y: 562 }
+        },
+        "4": {
+            position: { x: -291, y: 494 }
+        },
+        "5": {
+            position: { x: -291, y: 511 }
+        },
+        "6": {
+            position: { x: -291, y: 528 }
+        },
+        "7": {
+            position: { x: -291, y: 562 }
+        }
     },
     den: {
-        1: {
-            position: { x: 21.18, y: -2.42 } as Vec2,
+        "0": {
+            position: { x: -153, y: 615 }
         },
-        2: {
-            position: { x: 21.82, y: -0.9 } as Vec2,
+        "1": {
+            position: { x: -145, y: 598 }
         },
-        3: {
-            position: { x: 19.18, y: -1.42 } as Vec2,
+        "2": {
+            position: { x: -127.5, y: 653 }
         },
-        4: {
-            position: { x: 19.14, y: 0.24 } as Vec2,
+        "3": {
+            position: { x: -120.5, y: 609 }
         },
-        5: {
-            position: { x: 19.74, y: 2.42 } as Vec2,
-        },
+        "4": {
+            position: { x: -120, y: 628 }
+        }
     },
     digsite: {
-        1: {
-            position: { x: 12.45, y: -4.38 } as Vec2,
+        "0": {
+            position: { x: -41, y: 575.5 }
         },
-        2: {
-            position: { x: 7.42, y: -4.8 } as Vec2,
+        "1": {
+            position: { x: 17, y: 571 }
         },
-        3: {
-            position: { x: 5.85, y: -4.64 } as Vec2,
+        "2": {
+            position: { x: 35, y: 572.5 }
         },
-        4: {
-            position: { x: 4.24, y: -3.37 } as Vec2,
-        },
+        "3": {
+            position: { x: 53.5, y: 587 }
+        }
     },
+    gully: {
+        "0": {
+            position: { x: -537, y: 580 }
+        },
+        "1": {
+            position: { x: -513, y: 541.3 }
+        },
+        "2": {
+            position: { x: -513, y: 567.5 }
+        },
+        "3": {
+            position: { x: -509, y: 604.3 }
+        },
+        "4": {
+            position: { x: -467.8, y: 580.5 }
+        }
+    },
+    tidepools: {
+        "0": {
+            position: { x: -551.3, y: 702 }
+        },
+        "1": {
+            position: { x: -547.5, y: 738.5 }
+        },
+        "2": {
+            position: { x: -511.2, y: 724 }
+        },
+        "3": {
+            position: { x: -511.2, y: 744.4 }
+        },
+        "4": {
+            position: { x: -483.5, y: 739.1 }
+        }
+    }
 };

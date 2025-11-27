@@ -1,0 +1,123 @@
+import { GLOBS_TO_MAP_SPRITE_ASSETS, PATH_TO_LABYRINTH_MAP_PREFAB, PATH_TO_RAINBOW_ISLAND_MAP_PREFAB } from "../../asset_paths.js";
+import { basename } from "node:path";
+import { globSync } from "glob";
+import { parseUnityFileYamlIntoAssetsMapping } from "../nodes/processing_utils.js";
+import { readFile } from "node:fs/promises";
+
+/** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
+/** @typedef {{ [fileKeyFileId: string]: AssetJSONType }} AssetsMappingType */
+/** @typedef {{ x: number, y: number }} Vec2 */
+
+export async function extractCoordsOfMapTextures() {
+
+    const spriteAssetFilePaths = globSync(GLOBS_TO_MAP_SPRITE_ASSETS);
+
+    const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+    
+    /** @type {{ [shortName: string]: string }} */
+    const mapSpriteShortNameToGUIDs = { };
+    /** @type {{ [guid: string]: AssetJSONType }} */
+    const mapSpriteGUIDtoAssetJSONs = { };
+
+    await Promise.all(spriteAssetFilePaths.map(
+        async (assetpath) => {
+            const filenameNoExt = basename(assetpath).split(".")[0];
+
+            const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+            const guid = metaFileGuidRegex.exec(metadata)[1];
+            
+            /** @type {AssetsMappingType} */
+            const spriteAssetsMapping = { };
+            parseUnityFileYamlIntoAssetsMapping(assetpath, spriteAssetsMapping);
+            if(Object.keys(spriteAssetsMapping).length !== 1) {
+                throw new Error("Expected only one asset to be in the sprite asset file");
+            }
+            const spriteAssetJSON = Object.values(spriteAssetsMapping)[0];
+
+            mapSpriteShortNameToGUIDs[filenameNoExt] = guid;
+            mapSpriteGUIDtoAssetJSONs[guid] = spriteAssetJSON;
+        }
+    ));
+
+    const guids = Object.values(mapSpriteShortNameToGUIDs);
+
+    /** @type {AssetsMappingType} */
+    const ingameRIMapAssetsMapping = { };
+    parseUnityFileYamlIntoAssetsMapping(PATH_TO_RAINBOW_ISLAND_MAP_PREFAB, ingameRIMapAssetsMapping, n => /^(MonoBehaviou?r|GameObject|(?:Rect)?Transform)$/i.test(n));
+
+    /** @type {AssetsMappingType} */
+    const ingameLbMapAssetsMapping = { };
+    parseUnityFileYamlIntoAssetsMapping(PATH_TO_LABYRINTH_MAP_PREFAB, ingameLbMapAssetsMapping, n => /^(MonoBehaviou?r|GameObject|(?:Rect)?Transform)$/i.test(n));
+
+    /** @type {{ [shortName: string]: { sizeInUnits: Vec2, offsetMin: Vec2, offsetMax: Vec2 } }} */
+    const partPositionsRI = { };
+    /** @type {{ [shortName: string]: { sizeInUnits: Vec2, offsetMin: Vec2, offsetMax: Vec2 } }} */
+    const partPositionsLabyrinth = { };
+
+    for(const [sourceAssetMapping, targetPartPositionsObj, assetJSON] of [
+        ...Object.values(ingameRIMapAssetsMapping).map(assetJSON => [ingameRIMapAssetsMapping, partPositionsRI, assetJSON]),
+        ...Object.values(ingameLbMapAssetsMapping).map(assetJSON => [ingameLbMapAssetsMapping, partPositionsLabyrinth, assetJSON]),
+    ]) {
+
+        const guid = assetJSON.props["m_Sprite"]?.["guid"];
+        if(!guid || !guids.includes(guid))
+            continue;
+
+        // This asset has one of the map sprites as its associated sprite.
+
+        if(Object.hasOwn(partPositionsRI, guid))
+            throw new Error(`Mapping already existed for guid ${guid}:\n${JSON.stringify(partPositionsRI[guid], undefined, 4)}`);
+
+        // and it's a map sprite for which we haven't yet processed a position.
+
+        if(assetJSON.typeName !== "MonoBehaviour")
+            throw new Error(`Why was the assetJSON with a m_Sprite ref guid of ${guid} not a MonoBehaviour?`);
+
+        console.log(assetJSON.typeName, assetJSON.fileKey + "&" + assetJSON.fileId);
+
+        const shortName = Object.entries(mapSpriteShortNameToGUIDs).find(e => e[1] === guid)[0];
+
+        console.log(shortName);
+    
+        const podGameObj = sourceAssetMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];        
+        if(!podGameObj || podGameObj.typeName !== "GameObject") throw new Error(`m_GameObject = ${JSON.stringify(assetJSON.props["m_GameObject"])}, podGameObj = ${JSON.stringify(podGameObj)}`);
+
+        let curTransform = null;
+
+        for(const componentRef of podGameObj.props["m_Component"]) {
+            
+            const componentObj = sourceAssetMapping[podGameObj.fileKey + "&" + componentRef["component"]["fileID"]];
+            if(!componentObj) throw new Error(`componentRef = ${JSON.stringify(componentRef)},\npodGameObj = ${JSON.stringify(podGameObj, undefined, 4)}`);
+
+            if(componentObj.typeName === "RectTransform") {
+                curTransform = componentObj;
+                break;
+            }
+
+        }
+
+        if(!curTransform) {
+            throw new Error(`Why was there no RectTransform for this game object?  map texture short name ${shortName}`);
+        }
+
+        const anchoredPos = curTransform.props["m_AnchoredPosition"];
+        const size = curTransform.props["m_SizeDelta"];
+
+        const offsetMin = {
+            x: anchoredPos.x - (size.x / 2),
+            y: anchoredPos.y - (size.y / 2)
+        };
+        const offsetMax = {
+            x: anchoredPos.x + (size.x / 2),
+            y: anchoredPos.y + (size.y / 2)
+        };
+
+        targetPartPositionsObj[shortName] = { sizeInUnits: size, offsetMin, offsetMax };
+
+    }
+
+    return { mapSpriteShortNameToGUIDs, mapSpriteGUIDtoAssetJSONs, partPositionsRI, partPositionsLabyrinth };
+
+}
+
+await extractCoordsOfMapTextures();

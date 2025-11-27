@@ -1,9 +1,9 @@
-import { Marker, Popup } from "react-leaflet";
 import { icon_opacity, icon_template, treasure_pod_ls_key } from "../globals";
 import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { MapType } from "../CurrentMapContext";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { TreasurePod } from "../types";
 import { handleChecked } from "../util";
 import { treasure_pods } from "../data/treasure_pods";
@@ -33,43 +33,36 @@ export function TreasurePodIcon({ treasure_pod, keyName }: { treasure_pod: Treas
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/iconTreasurePod.png",
         className: `${checked && icon_opacity}`,
-    });
+    };
+
+    const markerRefKey = `treasurepod_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
     return (
-        <Marker key={keyName} position={[treasure_pod.pos.x, treasure_pod.pos.y]} icon={icon}>
-            <Popup>
-                <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center gap-5">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleChecked(treasure_pod_ls_key, keyName, checked, setChecked, deprecatedKey)}
-                                className="w-4 h-4"
-                            />
-                            <h1 className="ml-2 text-xl font-medium">Treasure Pod</h1>
-                        </div>
-                    </div>
+        <MarkerAndPopupTemplate
+            markerRefKey={markerRefKey}
+            position={[treasure_pod.pos.x, treasure_pod.pos.y]}
+            iconOptions={iconOptions}
+            popupCheckedState={checked}
+            onPopupCheckChange={() => handleChecked(treasure_pod_ls_key, keyName, checked, setChecked, deprecatedKey)}
+            headerRowChildren={
+                <h1 className="ml-2 text-xl font-medium">Treasure Pod</h1>
+            }
+        >
+            <span className="my-0.5"><span className="font-bold">Description:</span> {treasure_pod.description ? treasure_pod.description : "N/A"}</span>
 
-                    <hr />
-
-                    <span className="my-0.5"><span className="font-bold">Description:</span> {treasure_pod.description ? treasure_pod.description : "N/A"}</span>
-
-                    <div>
-                        <h2 className="text-md font-bold">Contents:</h2>
-                        <ul>
-                            {treasure_pod.contents.map(content => {
-                                return <li className="list-disc ml-5" key={content}>{content}</li>;
-                            })}
-                        </ul>
-                    </div>
-                </div>
-            </Popup>
-        </Marker>
+            <div>
+                <h2 className="text-md font-bold">Contents:</h2>
+                <ul>
+                    {treasure_pod.contents.map(content => {
+                        return <li className="list-disc ml-5" key={content}>{content}</li>;
+                    })}
+                </ul>
+            </div>
+        </MarkerAndPopupTemplate>
     );
 }
 
